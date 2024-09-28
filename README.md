@@ -1,0 +1,2 @@
+<h1> Infraestrutura AWS Cognito com Terraform </h1>
+Este repositório contém a configuração de Infrastructure as Code (IaC) para gerenciar um Amazon Cognito User Pool usando Terraform. O Cognito User Pool permite o cadastro, login e controle de acesso seguro para os usuários das suas aplicações.
