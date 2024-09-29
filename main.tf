@@ -1,30 +1,66 @@
 provider "aws" {
-  region = "us-east-1"
+  region = "sa-east-1"
 }
 
-resource "aws_cognito_user_pool" "my_user_pool" {
-  name = "QuickServeUserPool"
+module "aws_cognito_user_pool_complete" {
 
-  auto_verified_attributes = ["email"]
+  source  = "lgallard/cognito-user-pool/aws"
 
-  password_policy {
+  user_pool_name           = "QuickServeUserPool"
+  deletion_protection = "INACTIVE"
+ 
+
+  password_policy = {
     minimum_length    = 8
-    require_lowercase = true
+    require_lowercase = false
     require_numbers   = true
     require_symbols   = true
     require_uppercase = true
+    temporary_password_validity_days = 15
   }
 
-  mfa_configuration = "OPTIONAL"
-}
+  schemas = [
+    {
+      attribute_data_type      = "Boolean"
+      developer_only_attribute = false
+      mutable                  = true
+      name                     = "available"
+      required                 = false
+    },
+    {
+      attribute_data_type      = "Boolean"
+      developer_only_attribute = true
+      mutable                  = true
+      name                     = "registered"
+      required                 = false
+    }
+  ]
 
-resource "aws_cognito_user_pool_client" "my_user_pool_client" {
-  name         = "MyAppClient"
-  user_pool_id = aws_cognito_user_pool.my_user_pool.id
-  generate_secret = false
-  allowed_oauth_flows_user_pool_client = true
-  allowed_oauth_flows = ["code"]
-  allowed_oauth_scopes = ["email", "openid", "profile"]
-  callback_urls = ["https://myapp.com/callback"]
-  logout_urls   = ["https://myapp.com/logout"]
+  string_schemas = [
+    {
+      attribute_data_type      = "String"
+      developer_only_attribute = false
+      mutable                  = false
+      name                     = "email"
+      required                 = false
+
+      string_attribute_constraints = {
+        min_length = 5
+        max_length = 150
+      }
+    }
+  ]
+
+  recovery_mechanisms = [
+     {
+      name     = "verified_email"
+      priority = 1
+    }
+  ]
+
+  tags = {
+    Owner       = "infra"
+    Environment = "production"
+    Terraform   = true
+  }
 }
