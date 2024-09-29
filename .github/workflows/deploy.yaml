@@ -1,4 +1,4 @@
-name: Terraform
+name: Deploy Application
 
 on:
   push:
@@ -6,22 +6,24 @@ on:
       - main
 
 jobs:
-  terraform:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-      - name: Terraform Init
-        run: terraform init
+      - name: Retrieve secret from AWS Secrets Manager
+        run: |
+          SECRET=$(aws secretsmanager get-secret-value --secret-id myapp/secrets/api-key --query SecretString --output text)
+          echo "SECRET=$SECRET" >> $GITHUB_ENV
 
-      - name: Terraform Plan
-        run: terraform plan
-
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve
+      - name: Deploy with secret
+        run: echo "Using secret $SECRET"
