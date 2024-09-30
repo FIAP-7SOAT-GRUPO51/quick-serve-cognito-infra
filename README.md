@@ -5,7 +5,6 @@ Este repositório contém a configuração de Infrastructure as Code (IaC) para 
 
 <img src="img/arquitetura.png">
 
-
 ## Documentação:
 [AWS Lambda Documentation](https://aws.amazon.com/pt/pm/lambda/)
 
